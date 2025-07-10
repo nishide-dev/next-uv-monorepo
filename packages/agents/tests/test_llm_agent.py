@@ -87,13 +87,14 @@ class TestLLMChatAgent:
         # Verify conversation history is maintained
         assert conversation_id in agent.conversations
         messages = agent.conversations[conversation_id]
-        assert len(messages) == 4  # 2 user messages + 2 assistant responses
-        assert messages[0]["role"] == "user"
-        assert messages[0]["content"] == "My name is Alice"
-        assert messages[1]["role"] == "assistant"
-        assert messages[2]["role"] == "user"
-        assert messages[2]["content"] == "What is my name?"
-        assert messages[3]["role"] == "assistant"
+        assert len(messages) == 5  # 1 system + 2 user messages + 2 assistant responses
+        assert messages[0]["role"] == "system"
+        assert messages[1]["role"] == "user"
+        assert messages[1]["content"] == "My name is Alice"
+        assert messages[2]["role"] == "assistant"
+        assert messages[3]["role"] == "user"
+        assert messages[3]["content"] == "What is my name?"
+        assert messages[4]["role"] == "assistant"
 
     @pytest.mark.asyncio
     async def test_conversation_memory_limit(self, agent: LLMChatAgent) -> None:
@@ -110,7 +111,7 @@ class TestLLMChatAgent:
         # Verify that all messages are stored in conversation history
         # (memory limiting happens during graph processing, not in storage)
         messages = agent.conversations[conversation_id]
-        assert len(messages) == 12  # 6 user + 6 assistant messages
+        assert len(messages) == 13  # 1 system + 6 user + 6 assistant messages
 
         # Verify the memory limit setting is correctly configured
         assert agent.settings.conversation_memory_limit == 4

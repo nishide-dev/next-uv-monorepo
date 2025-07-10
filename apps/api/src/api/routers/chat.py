@@ -12,17 +12,18 @@ from api.models import ChatRequest, ChatResponse
 
 router = APIRouter()
 
+# Shared agent instance to maintain conversation memory
+_agent = LLMChatAgent()
+
 
 async def generate_chat_stream(
     message: str, conversation_id: str
 ) -> AsyncGenerator[str, None]:
     """Generate streaming chat responses."""
-    agent = LLMChatAgent()
-
     # Create initial response
     response_id = str(uuid.uuid4())
 
-    async for chunk in agent.stream_response(message, conversation_id):
+    async for chunk in _agent.stream_response(message, conversation_id):
         response = {
             "id": response_id,
             "content": chunk,
@@ -54,10 +55,9 @@ async def stream_chat(request: ChatRequest) -> StreamingResponse:
 @router.post("/")
 async def chat(request: ChatRequest) -> ChatResponse:
     """Non-streaming chat endpoint."""
-    agent = LLMChatAgent()
     conversation_id = request.conversation_id or str(uuid.uuid4())
 
-    response = await agent.get_response(request.message, conversation_id)
+    response = await _agent.get_response(request.message, conversation_id)
 
     return ChatResponse(
         content=response, conversation_id=conversation_id, role="assistant"

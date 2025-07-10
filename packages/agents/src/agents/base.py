@@ -12,6 +12,7 @@ class ConversationState(TypedDict):
     messages: list[dict[str, str]]
     conversation_id: str
     current_response: str
+    current_message: str
 
 
 class BaseAgent(BaseModel):
