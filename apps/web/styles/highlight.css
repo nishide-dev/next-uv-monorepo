@@ -1,0 +1,118 @@
+/* Highlight.js theme for dark/light mode compatibility */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0;
+  background: transparent;
+  color: var(--foreground);
+}
+
+/* Keywords */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+
+/* Strings */
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+  color: hsl(142 76% 36%);
+}
+
+/* Numbers */
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-variable,
+.hljs-meta,
+.hljs-link {
+  color: hsl(221 83% 53%);
+}
+
+/* Comments */
+.hljs-comment,
+.hljs-quote {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+/* Deletion */
+.hljs-deletion {
+  color: hsl(0 84% 60%);
+}
+
+/* Emphasis */
+.hljs-emphasis {
+  font-style: italic;
+}
+
+/* Strong */
+.hljs-strong {
+  font-weight: bold;
+}
+
+/* Functions */
+.hljs-function,
+.hljs-title.function_ {
+  color: hsl(262 83% 58%);
+}
+
+/* Classes */
+.hljs-class .hljs-title,
+.hljs-title.class_ {
+  color: hsl(32 95% 44%);
+}
+
+/* Attributes in HTML */
+.hljs-attr {
+  color: hsl(221 83% 53%);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .hljs-string,
+  .hljs-title,
+  .hljs-section,
+  .hljs-attribute,
+  .hljs-literal,
+  .hljs-template-tag,
+  .hljs-template-variable,
+  .hljs-type,
+  .hljs-addition {
+    color: hsl(142 76% 56%);
+  }
+  
+  .hljs-number,
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-variable,
+  .hljs-meta,
+  .hljs-link {
+    color: hsl(221 83% 73%);
+  }
+  
+  .hljs-function,
+  .hljs-title.function_ {
+    color: hsl(262 83% 78%);
+  }
+  
+  .hljs-class .hljs-title,
+  .hljs-title.class_ {
+    color: hsl(32 95% 64%);
+  }
+  
+  .hljs-attr {
+    color: hsl(221 83% 73%);
+  }
+}

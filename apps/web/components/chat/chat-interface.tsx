@@ -1,19 +1,42 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Card } from "@workspace/ui/components/card"
+import { useState, useRef, useEffect, useMemo } from "react"
+import { Card, CardHeader, CardContent } from "@workspace/ui/components/card"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import { Avatar, AvatarImage, AvatarFallback } from "@workspace/ui/components/avatar"
+import { Badge } from "@workspace/ui/components/badge"
+import { Separator } from "@workspace/ui/components/separator"
 import { ChatMessage } from "./chat-message"
 import { ChatInput } from "./chat-input"
+import { TypingIndicator } from "./typing-indicator"
 import { streamMessage, type ChatMessage as ChatMessageType } from "@/lib/chat-api"
+import { Bot, User } from "lucide-react"
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
-  const [conversationId] = useState(() => crypto.randomUUID())
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  
+  // Generate conversation ID only on client side to avoid hydration mismatch
+  const conversationId = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      return crypto.randomUUID()
+    }
+    return 'temp-id'
+  }, [])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight
+      }
+    }
   }
 
   useEffect(() => {
@@ -21,6 +44,8 @@ export function ChatInterface() {
   }, [messages])
 
   const handleSendMessage = async (message: string) => {
+    if (!mounted) return
+    
     // Add user message immediately
     const userMessage: ChatMessageType = {
       id: crypto.randomUUID(),
@@ -71,29 +96,88 @@ export function ChatInterface() {
   }
 
   return (
-    <Card className="flex flex-col h-[600px] max-w-4xl mx-auto">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            <p>Start a conversation...</p>
+    <div className="flex flex-col h-screen max-w-4xl mx-auto border-x bg-background">
+      {/* Chat Header */}
+      <Card className="rounded-none border-x-0 border-t-0">
+        <CardHeader className="pb-3">
+          <div className="flex items-center space-x-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src="/bot-avatar.png" alt="AI Assistant" />
+              <AvatarFallback>
+                <Bot className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h2 className="font-semibold text-lg">AI Assistant</h2>
+              <div className="flex items-center space-x-2">
+                <Badge variant="secondary" className="text-xs">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
+                  Online
+                </Badge>
+                {isStreaming && (
+                  <Badge variant="outline" className="text-xs">
+                    Typing...
+                  </Badge>
+                )}
+              </div>
+            </div>
           </div>
-        ) : (
-          messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              content={message.content}
-              role={message.role}
-              timestamp={message.timestamp}
-            />
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-      
+        </CardHeader>
+      </Card>
+
+      <Separator />
+
+      {/* Messages Area */}
+      <ScrollArea className="flex-1 px-0" ref={scrollAreaRef}>
+        <div className="p-4 space-y-6">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-12">
+              <div className="p-4 rounded-full bg-primary/10">
+                <Bot className="h-8 w-8 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Welcome to AI Chat</h3>
+                <p className="text-muted-foreground max-w-md">
+                  Start a conversation with our AI assistant. Ask questions, get help, or just chat!
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 max-w-md">
+                <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                  Tell me a joke
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                  Explain quantum physics
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                  Write a poem
+                </Badge>
+              </div>
+            </div>
+          ) : (
+            <>
+              {messages.map((message, index) => (
+                <ChatMessage
+                  key={message.id}
+                  content={message.content}
+                  role={message.role}
+                  timestamp={message.timestamp}
+                  isStreaming={isStreaming && index === messages.length - 1 && message.role === "assistant"}
+                />
+              ))}
+              {isStreaming && <TypingIndicator />}
+            </>
+          )}
+        </div>
+      </ScrollArea>
+
+      <Separator />
+
+      {/* Input Area */}
       <ChatInput 
         onSendMessage={handleSendMessage}
         disabled={isStreaming}
+        conversationId={conversationId}
       />
-    </Card>
+    </div>
   )
 }
