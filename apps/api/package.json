@@ -1,0 +1,11 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "cd ../.. && uv run --project apps/api api-server",
+    "build": "echo 'API build completed'",
+    "lint": "cd ../.. && uv run --project apps/api ruff check .",
+    "test": "cd ../.. && uv run --project apps/api pytest"
+  }
+}

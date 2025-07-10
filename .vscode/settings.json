@@ -1,3 +1,19 @@
 {
-  "tailwindCSS.experimental.configFile": "packages/ui/src/styles/globals.css"
+  "[python]": {
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "modifications",
+    "editor.semanticHighlighting.enabled": true,
+  },
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "tailwindCSS.experimental.configFile": "packages/ui/src/styles/globals.css",
+  "python.analysis.typeCheckingMode": "off",
+  "python.linting.pylintEnabled": false,
+  "python.linting.mypyEnabled": false,
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.diagnosticMode": "workspace"
 }

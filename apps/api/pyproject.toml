@@ -1,0 +1,79 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "API server for Next.js + UV monorepo template"
+authors = [{name = "Ryusei Nishide", email = "nishide.dev@gmail.com"}]
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.0.0",
+    "typing-extensions>=4.0.0",
+    "agents", # Local dependency from workspace
+]
+
+[tool.uv.sources]
+agents = { workspace = true }
+
+[project.scripts]
+api-server = "api.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.20.0",
+    "pytest-mock>=3.10.0",
+    "pytest-cov>=4.0.0",
+    "httpx>=0.24.0",
+    "ruff>=0.3.5"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/api"]
+
+# Package-specific tool configurations
+[tool.ruff]
+extend = "../../ruff.toml"
+src = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["--strict-markers", "--strict-config"]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]
+
+[tool.pyright]
+typeCheckingMode = "off"

@@ -1,0 +1,62 @@
+[project]
+name = "next-uv-monorepo"
+version = "0.1.0"
+description = "Next.js + UV monorepo template"
+authors = [{name = "Ryusei Nishide", email = "nishide.dev@gmail.com"}]
+requires-python = ">=3.12"
+dependencies = []
+
+# This is a workspace-only project, not a buildable package
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+bypass-selection = true
+
+# uv workspace configuration
+[tool.uv.workspace]
+members = [
+    "apps/api",
+    "packages/agents",
+]
+
+# Shared development dependencies for the workspace
+[tool.uv]
+dev-dependencies = [
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.4",
+    "pytest-asyncio>=1.0.0",
+    "ruff>=0.3.5",
+]
+
+# Shared tool configurations
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["apps/api/tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.pyright]
+typeCheckingMode = "off"
+
+[dependency-groups]
+api = [
+    "python-multipart>=0.0.20",
+]

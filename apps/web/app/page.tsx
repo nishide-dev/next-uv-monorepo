@@ -1,11 +1,17 @@
-import { Button } from "@workspace/ui/components/button"
+import { ChatInterface } from "@/components/chat/chat-interface"
 
 export default function Page() {
   return (
-    <div className="flex items-center justify-center min-h-svh">
-      <div className="flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold">Hello World</h1>
-        <Button size="sm">Button</Button>
+    <div className="container mx-auto py-8">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">AI Chat Assistant</h1>
+          <p className="text-muted-foreground mt-2">
+            Powered by LangGraph and FastAPI
+          </p>
+        </div>
+        
+        <ChatInterface />
       </div>
     </div>
   )
