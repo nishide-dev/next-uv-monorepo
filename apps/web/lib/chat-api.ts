@@ -14,7 +14,7 @@ export interface StreamResponse {
   role: "assistant"
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
 export async function sendMessage(message: string, conversationId?: string): Promise<ChatMessage> {
   const response = await fetch(`${API_BASE_URL}/api/chat/`, {

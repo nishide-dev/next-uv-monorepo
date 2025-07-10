@@ -5,14 +5,10 @@ import { Button } from "@workspace/ui/components/button"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { 
-  Send, 
-  Paperclip, 
-  Mic, 
-  MicOff, 
-  Smile, 
+import {
+  Send,
   Square,
-  Loader2 
+  Loader2
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -22,13 +18,12 @@ interface ChatInputProps {
   conversationId: string
 }
 
-export function ChatInput({ 
-  onSendMessage, 
+export function ChatInput({
+  onSendMessage,
   disabled = false,
-  conversationId 
+  conversationId
 }: ChatInputProps) {
   const [message, setMessage] = useState("")
-  const [isRecording, setIsRecording] = useState(false)
   const [charCount, setCharCount] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -36,15 +31,15 @@ export function ChatInput({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (message.trim() && !disabled && message.length <= maxChars) {
       onSendMessage(message.trim())
       setMessage("")
       setCharCount(0)
-      
+
       // Reset textarea height
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
+        textareaRef.current.style.height = '44px'
       }
     }
   }
@@ -60,25 +55,12 @@ export function ChatInput({
     const value = e.target.value
     setMessage(value)
     setCharCount(value.length)
-    
+
     // Auto-resize textarea
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = '44px'
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`
     }
-  }
-
-  const handleVoiceToggle = () => {
-    setIsRecording(!isRecording)
-    // Voice recording logic would go here
-  }
-
-  const handleAttachment = () => {
-    // File attachment logic would go here
-  }
-
-  const handleEmojiClick = () => {
-    // Emoji picker logic would go here
   }
 
   const handleStopGeneration = () => {
@@ -89,16 +71,16 @@ export function ChatInput({
 
   return (
     <Card className="rounded-none border-x-0 border-b-0">
-      <CardContent className="p-4">
+      <CardContent className="px-4">
         <div className="space-y-3">
           {/* Quick Actions */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Badge variant="outline" className="text-xs">
                 Conversation: {conversationId !== 'temp-id' ? conversationId.slice(0, 8) + '...' : 'Loading...'}
               </Badge>
-            </div>
-            
+            </div> */}
+
             {disabled && (
               <Button
                 variant="outline"
@@ -113,121 +95,62 @@ export function ChatInput({
           </div>
 
           {/* Input Area */}
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="relative">
-              <Textarea
-                ref={textareaRef}
-                value={message}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder={
-                  disabled 
-                    ? "AI is thinking..." 
-                    : "Type your message... (Press Enter to send, Shift+Enter for new line)"
-                }
-                disabled={disabled}
-                className={cn(
-                  "min-h-[60px] max-h-[120px] resize-none pr-12 transition-colors",
-                  message.length > maxChars * 0.9 && "border-destructive focus-visible:ring-destructive"
-                )}
-                style={{ height: '60px' }}
-              />
-              
-              {/* Character Count */}
-              {message.length > maxChars * 0.8 && (
-                <div className="absolute bottom-2 right-2">
-                  <Badge 
-                    variant={message.length > maxChars ? "destructive" : "secondary"}
-                    className="text-xs"
-                  >
-                    {charCount}/{maxChars}
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleAttachment}
-                  disabled={disabled}
-                  className="h-8 w-8 p-0"
-                >
-                  <Paperclip className="h-4 w-4" />
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleVoiceToggle}
+          <form onSubmit={handleSubmit} className="space-y-2">
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={message}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder={
+                    disabled
+                      ? "AI is thinking..."
+                      : "Type your message..."
+                  }
                   disabled={disabled}
                   className={cn(
-                    "h-8 w-8 p-0",
-                    isRecording && "text-destructive"
+                    "min-h-[44px] max-h-[120px] resize-none transition-colors",
+                    message.length > maxChars * 0.9 && "border-destructive focus-visible:ring-destructive"
                   )}
-                >
-                  {isRecording ? (
-                    <MicOff className="h-4 w-4" />
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleEmojiClick}
-                  disabled={disabled}
-                  className="h-8 w-8 p-0"
-                >
-                  <Smile className="h-4 w-4" />
-                </Button>
+                  style={{ height: '44px' }}
+                />
+
+                {/* Character Count */}
+                {message.length > maxChars * 0.8 && (
+                  <div className="absolute bottom-2 right-2">
+                    <Badge
+                      variant={message.length > maxChars ? "destructive" : "secondary"}
+                      className="text-xs"
+                    >
+                      {charCount}/{maxChars}
+                    </Badge>
+                  </div>
+                )}
               </div>
 
-              <Button 
-                type="submit" 
+              {/* Send Button */}
+              <Button
+                type="submit"
                 disabled={!canSend}
-                size="sm"
-                className="h-8 px-3"
+                size="icon"
+                className="h-[44px] w-[44px] shrink-0"
               >
                 {disabled ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <>
-                    <Send className="h-3 w-3 mr-1" />
-                    Send
-                  </>
+                  <Send className="h-4 w-4" />
                 )}
               </Button>
             </div>
-          </form>
 
-          {/* Suggestions */}
-          {message.length === 0 && !disabled && (
-            <div className="flex flex-wrap gap-2">
-              {[
-                "Explain this concept",
-                "Write a summary",
-                "Help me brainstorm",
-                "Translate this text"
-              ].map((suggestion) => (
-                <Badge
-                  key={suggestion}
-                  variant="outline"
-                  className="cursor-pointer hover:bg-accent transition-colors text-xs"
-                  onClick={() => setMessage(suggestion)}
-                >
-                  {suggestion}
-                </Badge>
-              ))}
-            </div>
-          )}
+            {/* Input Hints */}
+            {!disabled && (
+              <div className="text-xs text-muted-foreground px-1">
+                Press Enter to send, Shift+Enter for new line
+              </div>
+            )}
+          </form>
         </div>
       </CardContent>
     </Card>
