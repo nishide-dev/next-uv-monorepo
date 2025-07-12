@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@workspace/ui/components/av
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { cn } from "@workspace/ui/lib/utils"
-import { Bot, User, Copy, MoreHorizontal } from "lucide-react"
+import { Bot, User, Copy, MoreHorizontal, RotateCcw } from "lucide-react"
 import { format } from "date-fns"
 import { MarkdownContent } from "./markdown-content"
 
@@ -15,13 +15,15 @@ interface ChatMessageProps {
   role: "user" | "assistant"
   timestamp: Date
   isStreaming?: boolean
+  onRegenerate?: () => void
 }
 
 export function ChatMessage({ 
   content, 
   role, 
   timestamp, 
-  isStreaming = false 
+  isStreaming = false,
+  onRegenerate
 }: ChatMessageProps) {
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -147,6 +149,18 @@ export function ChatMessage({
               >
                 <Copy className="h-3 w-3" />
               </Button>
+              
+              {!isUser && onRegenerate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={onRegenerate}
+                  title="Regenerate response"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                </Button>
+              )}
               
               <Button
                 variant="ghost"

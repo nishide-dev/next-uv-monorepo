@@ -14,12 +14,14 @@ import { cn } from "@workspace/ui/lib/utils"
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void
+  onStopGeneration: () => void
   disabled?: boolean
   conversationId: string
 }
 
 export function ChatInput({
   onSendMessage,
+  onStopGeneration,
   disabled = false,
   conversationId
 }: ChatInputProps) {
@@ -64,7 +66,7 @@ export function ChatInput({
   }
 
   const handleStopGeneration = () => {
-    // Stop generation logic would go here
+    onStopGeneration()
   }
 
   const canSend = message.trim() && !disabled && message.length <= maxChars
@@ -75,23 +77,11 @@ export function ChatInput({
         <div className="space-y-3">
           {/* Quick Actions */}
           <div className="flex items-center justify-between">
-            {/* <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
               <Badge variant="outline" className="text-xs">
                 Conversation: {conversationId !== 'temp-id' ? conversationId.slice(0, 8) + '...' : 'Loading...'}
               </Badge>
-            </div> */}
-
-            {disabled && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleStopGeneration}
-                className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-              >
-                <Square className="h-3 w-3 mr-1" />
-                Stop
-              </Button>
-            )}
+            </div>
           </div>
 
           {/* Input Area */}
@@ -129,15 +119,19 @@ export function ChatInput({
                 )}
               </div>
 
-              {/* Send Button */}
+              {/* Send/Stop Button */}
               <Button
-                type="submit"
-                disabled={!canSend}
+                type={disabled ? "button" : "submit"}
+                onClick={disabled ? handleStopGeneration : undefined}
+                disabled={!disabled && !canSend}
                 size="icon"
-                className="h-[44px] w-[44px] shrink-0"
+                className={cn(
+                  "h-[44px] w-[44px] shrink-0 transition-colors",
+                  disabled && "bg-red-100 hover:bg-red-200 text-red-600 border-red-200 dark:bg-red-950 dark:hover:bg-red-900 dark:text-red-400 dark:border-red-800"
+                )}
               >
                 {disabled ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Square className="h-4 w-4" />
                 ) : (
                   <Send className="h-4 w-4" />
                 )}

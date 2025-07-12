@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import { Card, CardHeader, CardContent } from "@workspace/ui/components/card"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Avatar, AvatarImage, AvatarFallback } from "@workspace/ui/components/avatar"
@@ -8,7 +8,6 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Separator } from "@workspace/ui/components/separator"
 import { ChatMessage } from "./chat-message"
 import { ChatInput } from "./chat-input"
-import { TypingIndicator } from "./typing-indicator"
 import { streamMessage, type ChatMessage as ChatMessageType } from "@/lib/chat-api"
 import { Bot, User } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -17,6 +16,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [currentStreamController, setCurrentStreamController] = useState<AbortController | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   // Generate conversation ID only on client side to avoid hydration mismatch
@@ -44,17 +44,19 @@ export function ChatInterface() {
     scrollToBottom()
   }, [messages])
 
-  const handleSendMessage = async (message: string) => {
+  const handleSendMessage = useCallback(async (message: string, skipUserMessage: boolean = false) => {
     if (!mounted) return
 
-    // Add user message immediately
-    const userMessage: ChatMessageType = {
-      id: crypto.randomUUID(),
-      content: message,
-      role: "user",
-      timestamp: new Date(),
+    // Add user message immediately (unless we're regenerating)
+    if (!skipUserMessage) {
+      const userMessage: ChatMessageType = {
+        id: crypto.randomUUID(),
+        content: message,
+        role: "user",
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, userMessage])
     }
-    setMessages(prev => [...prev, userMessage])
     setIsStreaming(true)
 
     try {
@@ -94,7 +96,36 @@ export function ChatInterface() {
     } finally {
       setIsStreaming(false)
     }
-  }
+  }, [mounted, conversationId])
+
+  const handleStopGeneration = useCallback(() => {
+    if (currentStreamController) {
+      currentStreamController.abort()
+      setCurrentStreamController(null)
+      setIsStreaming(false)
+    }
+  }, [currentStreamController])
+
+  const handleRegenerate = useCallback(async (messageIndex: number) => {
+    if (isStreaming || !mounted) return
+
+    // Find the last user message before this assistant message
+    let userMessage = ""
+    for (let i = messageIndex - 1; i >= 0; i--) {
+      if (messages[i]?.role === "user") {
+        userMessage = messages[i]?.content || ""
+        break
+      }
+    }
+
+    if (!userMessage) return
+
+    // Remove the current assistant message
+    setMessages(prev => prev.slice(0, messageIndex))
+
+    // Regenerate the response without adding a new user message
+    await handleSendMessage(userMessage, true)
+  }, [messages, isStreaming, mounted, handleSendMessage])
 
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto border-x bg-background">
@@ -175,9 +206,9 @@ export function ChatInterface() {
                     role={message.role}
                     timestamp={message.timestamp}
                     isStreaming={isStreaming && index === messages.length - 1 && message.role === "assistant"}
+                    onRegenerate={message.role === "assistant" && !isStreaming ? () => handleRegenerate(index) : undefined}
                   />
                 ))}
-                {isStreaming && <TypingIndicator />}
               </>
             )}
           </div>
@@ -189,6 +220,7 @@ export function ChatInterface() {
         <Separator />
         <ChatInput
           onSendMessage={handleSendMessage}
+          onStopGeneration={handleStopGeneration}
           disabled={isStreaming}
           conversationId={conversationId}
         />

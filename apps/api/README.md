@@ -52,10 +52,10 @@ LLM_PROVIDER=gemini  # or openai, anthropic
 ### Running
 ```bash
 # Development server
-uv run uvicorn src.api.main:app --reload --port 8001
+uv run uvicorn src.api.main:app --reload --port 8888
 
 # Production
-uv run uvicorn src.api.main:app --port 8001
+uv run uvicorn src.api.main:app --port 8888
 ```
 
 ### Testing
@@ -77,7 +77,7 @@ uv run ruff format
 ## Configuration
 
 The API automatically configures:
-- **CORS** for frontend integration (localhost:3000, 3001)
+- **CORS** for frontend integration (localhost:3333, 3000, 3001)
 - **LLM Provider** via environment variables
 - **Conversation Memory** for multi-turn chat
 - **Error Handling** with proper HTTP status codes
@@ -94,3 +94,5 @@ for await (const chunk of streamMessage(message, conversationId)) {
 // Simple chat
 const response = await sendMessage(message, conversationId);
 ```
+
+The API runs on port 8888 by default and accepts requests from the frontend running on port 3333.
